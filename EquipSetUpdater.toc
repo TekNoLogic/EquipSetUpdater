@@ -1,0 +1,19 @@
+## Interface: 30100
+
+## Title: EquipSetUpdater
+## Notes: "Update" button for the equipment eanager
+## Author: Tekkub Stoutwrithe
+## Version: Alpha
+## X-Website: http://www.tekkub.net/
+## X-Email: tekkub-wow@googlegroups.com
+## X-Category: Misc
+
+## OptionalDeps: tekDebug, tekErr
+
+## LoadManagers: AddonLoader
+## X-LoadOn-Execute: CreateFrame("Frame", nil, GearManagerDialog):SetScript("OnShow", function(self) LoadAddOn('EquipSetUpdater'); self:SetScript("OnShow", nil) end)
+
+LibStub.lua
+tekKonfigAboutPanel.lua
+
+EquipSetUpdater.lua
