@@ -1,4 +1,13 @@
 
+----------------------
+--      Locals      --
+----------------------
+
+local slotbutts = {CharacterHeadSlot, CharacterNeckSlot, CharacterShoulderSlot, CharacterShirtSlot, CharacterChestSlot, CharacterWaistSlot, CharacterLegsSlot,
+	CharacterFeetSlot, CharacterWristSlot, CharacterHandsSlot, CharacterFinger0Slot, CharacterFinger1Slot, CharacterTrinket0Slot, CharacterTrinket1Slot,
+	CharacterBackSlot, CharacterMainHandSlot, CharacterSecondaryHandSlot, CharacterRangedSlot, CharacterTabardSlot}
+
+
 ------------------------------
 --      Util Functions      --
 ------------------------------
@@ -46,10 +55,28 @@ function f:ADDON_LOADED(event, addon)
 	butt:Disable()
 	self.butt = butt
 
+	local temp = {}
 	butt:SetScript("OnShow", butt.Disable)
 	butt:SetScript("OnClick", self.UpdateSet)
 	hooksecurefunc("GearSetButton_OnClick", function(self)
-		if GearManagerDialog.selectedSet then butt:Enable() else butt:Disable() end
+		if GearManagerDialog.selectedSet then
+			butt:Enable()
+			local ids = GetEquipmentSetItemIDs(GearManagerDialog.selectedSet.name, wipe(temp))
+			for i=1,19 do
+				local butt = slotbutts[i]
+				if not ids[i] then
+					if not butt.ignored then
+						EquipmentManagerIgnoreSlotForSave(i)
+						butt.ignored = true
+						PaperDollItemSlotButton_Update(butt)
+					end
+				elseif butt.ignored then
+					EquipmentManagerUnignoreSlotForSave(i)
+					butt.ignored = nil
+					PaperDollItemSlotButton_Update(butt)
+				end
+			end
+		else butt:Disable() end
 	end)
 
 	self:RegisterEvent("EQUIPMENT_SETS_CHANGED")
