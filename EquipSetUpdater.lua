@@ -94,6 +94,7 @@ end
 
 
 local function GetTextureIndex(tex)
+	RefreshEquipmentSetIconInfo()
 	tex = tex:lower()
 	local numicons = GetNumMacroIcons()
 	for i=INVSLOT_FIRST_EQUIPPED,INVSLOT_LAST_EQUIPPED do if GetInventoryItemTexture("player", i) then numicons = numicons + 1 end end
