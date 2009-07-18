@@ -3,6 +3,7 @@
 --      Locals      --
 ----------------------
 
+local orig
 local slotbutts = {CharacterHeadSlot, CharacterNeckSlot, CharacterShoulderSlot, CharacterShirtSlot, CharacterChestSlot, CharacterWaistSlot, CharacterLegsSlot,
 	CharacterFeetSlot, CharacterWristSlot, CharacterHandsSlot, CharacterFinger0Slot, CharacterFinger1Slot, CharacterTrinket0Slot, CharacterTrinket1Slot,
 	CharacterBackSlot, CharacterMainHandSlot, CharacterSecondaryHandSlot, CharacterRangedSlot, CharacterTabardSlot}
@@ -30,56 +31,15 @@ f:RegisterEvent("ADDON_LOADED")
 function f:ADDON_LOADED(event, addon)
 	if addon:lower() ~= "equipsetupdater" then return end
 
-	GearManagerDialogSaveSet:SetWidth(80)
-	GearManagerDialogDeleteSet:SetWidth(80)
-
-	local butt = CreateFrame("Button", nil, GearManagerDialog)
-	butt:SetPoint("TOPLEFT", GearManagerDialogDeleteSet, "TOPRIGHT", 1, 0)
-	butt:SetPoint("BOTTOMRIGHT", GearManagerDialogSaveSet, "BOTTOMLEFT", -1, 0)
-
-	butt:SetDisabledFontObject(GameFontDisable)
-	butt:SetHighlightFontObject(GameFontHighlight)
-	butt:SetNormalFontObject(GameFontNormal)
-
-	butt:SetNormalTexture("Interface\\Buttons\\UI-Panel-Button-Up")
-	butt:SetPushedTexture("Interface\\Buttons\\UI-Panel-Button-Down")
-	butt:SetHighlightTexture("Interface\\Buttons\\UI-Panel-Button-Highlight")
-	butt:SetDisabledTexture("Interface\\Buttons\\UI-Panel-Button-Disabled")
-	butt:GetNormalTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-	butt:GetPushedTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-	butt:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-	butt:GetDisabledTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-	butt:GetHighlightTexture():SetBlendMode("ADD")
-
-	butt:SetText("Update")
-	butt:Disable()
-	self.butt = butt
+	local butt = GearManagerDialogSaveSet
 
 	local temp = {}
-	butt:SetScript("OnShow", butt.Disable)
+	orig = butt:GetScript("OnClick")
 	butt:SetScript("OnClick", self.UpdateSet)
-	hooksecurefunc("GearSetButton_OnClick", function(self)
-		if GearManagerDialog.selectedSet then
-			butt:Enable()
-			local ids = GetEquipmentSetItemIDs(GearManagerDialog.selectedSet.name, wipe(temp))
-			for i=1,19 do
-				local butt = slotbutts[i]
-				if not ids[i] then
-					if not butt.ignored then
-						EquipmentManagerIgnoreSlotForSave(i)
-						butt.ignored = true
-						PaperDollItemSlotButton_Update(butt)
-					end
-				elseif butt.ignored then
-					EquipmentManagerUnignoreSlotForSave(i)
-					butt.ignored = nil
-					PaperDollItemSlotButton_Update(butt)
-				end
-			end
-		else butt:Disable() end
-	end)
+	hooksecurefunc("GearManagerDialog_Update", self.MODIFIER_STATE_CHANGED)
 
 	self:RegisterEvent("EQUIPMENT_SETS_CHANGED")
+	self:RegisterEvent("MODIFIER_STATE_CHANGED")
 
 	LibStub("tekKonfig-AboutPanel").new(nil, "EquipSetUpdater")
 
@@ -88,9 +48,10 @@ function f:ADDON_LOADED(event, addon)
 end
 
 
-function f:EQUIPMENT_SETS_CHANGED()
-	self.butt:Disable()
+function f:MODIFIER_STATE_CHANGED()
+	GearManagerDialogSaveSet:SetText((not GearManagerDialog.selectedSet or IsModifiedClick()) and "Save" or "Update")
 end
+f.EQUIPMENT_SETS_CHANGED = f.MODIFIER_STATE_CHANGED
 
 
 local function GetTextureIndex(tex)
@@ -105,9 +66,9 @@ local function GetTextureIndex(tex)
 end
 
 
-function f:UpdateSet()
+function f:UpdateSet(...)
 	local set = GearManagerDialog.selectedSet
-	if not set then return end
+	if not set or IsModifiedClick() then return orig(self, ...) end
 
 	local texi = GetTextureIndex(set.icon:GetTexture())
 	if not texi then return Print("Error finding icon index, cannot save set.") end
