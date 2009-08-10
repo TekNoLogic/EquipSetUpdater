@@ -1,5 +1,4 @@
-EquipSetUpdater adds a simple "update" buttone to the equipment manager.
-This button saves the currently selected set directly, avoiding the annoying process of finding the icon and confirming that you want to overwrite the set.
+EquipSetUpdater modifies the "save" button to directly update the selected equipment set, avoiding the annoying confirmation to overwrite the set.  The classic "save" functionality of the button can be accessed at any time by holding down shift.
 
 h2. Links
 
