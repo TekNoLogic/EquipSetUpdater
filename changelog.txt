@@ -1,3 +1,7 @@
+3.2.0.3-Beta
+    Rework for 3.2's changes
+    - Now overrides the "save" button, classic behavior of the button can be accessed via modified-click
+
 3.1.0.2-Beta
     Ensure the equipment set icon information are fresh when looking for the set icon. (Thanks Adirelle)
     Fix "ignore slot" not being loaded when a set is used
